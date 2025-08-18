@@ -188,7 +188,7 @@ Feel free to fork this repo and submit a PR.
 
 Vipun Sanjana – Software Engineer | Full Stack, AI & DevOps (Former SE Intern @WSO2)
 
-Email: vipunsanjana@gmail.com
+Email: vipunsanjana34@gmail.com
 
 GitHub: https://github.com/vipunsanjana
 
