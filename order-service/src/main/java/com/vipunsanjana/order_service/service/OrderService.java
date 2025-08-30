@@ -1,6 +1,7 @@
 package com.vipunsanjana.order_service.service;
 
 
+import com.vipunsanjana.order_service.dto.InventoryResponse;
 import com.vipunsanjana.order_service.dto.OrderLineItemsDto;
 import com.vipunsanjana.order_service.dto.OrderRequest;
 import com.vipunsanjana.order_service.model.Order;
@@ -37,13 +38,22 @@ public class OrderService {
 
         order.setOrderLineItemsList(orderLineItems);
 
-        Boolean result = webClient.get()
-                    .uri("http://localhost:8082/api/inventory")
+        List<String> skuCodes = order.getOrderLineItemsList().stream()
+                .map(OrderLineItems::getSkuCode)
+                .toList();
+
+        InventoryResponse[] inventoryResponsesArray = webClient.get()
+                    .uri("http://localhost:8082/api/inventory",
+                            uriBuilder -> uriBuilder.queryParam("skuCode",skuCodes).build())
                     .retrieve()
-                    .bodyToMono(Boolean.class)
+                    .bodyToMono(InventoryResponse[].class)
                     .block();
 
-            if (Boolean.TRUE.equals(result)) {
+        assert inventoryResponsesArray != null;
+        boolean allProductsInStock = Arrays.stream(inventoryResponsesArray)
+                .allMatch(InventoryResponse::isInStock);
+
+            if (allProductsInStock) {
                 orderRepository.save(order);
             } else {
                 throw new IllegalArgumentException("Product is not in stock, please try again later");
