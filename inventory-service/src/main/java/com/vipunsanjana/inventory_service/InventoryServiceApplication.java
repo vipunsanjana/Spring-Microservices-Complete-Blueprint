@@ -10,13 +10,12 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class InventoryServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(InventoryServiceApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(InventoryServiceApplication.class, args);
+    }
 
     @Bean
-    public CommandLineRunner loadData(InventoryRepository inventoryRepository){
+    public CommandLineRunner loadData(InventoryRepository inventoryRepository) {
         return args -> {
             Inventory inventory = new Inventory();
             inventory.setSkuCode("iphone_13");
@@ -30,5 +29,4 @@ public class InventoryServiceApplication {
             inventoryRepository.save(inventory1);
         };
     }
-
 }
