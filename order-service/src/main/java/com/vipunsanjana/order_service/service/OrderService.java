@@ -5,6 +5,7 @@ import brave.Tracer;
 import com.vipunsanjana.order_service.dto.InventoryResponse;
 import com.vipunsanjana.order_service.dto.OrderLineItemsDto;
 import com.vipunsanjana.order_service.dto.OrderRequest;
+import com.vipunsanjana.order_service.event.OrderPlacedEvent;
 import com.vipunsanjana.order_service.model.Order;
 import com.vipunsanjana.order_service.model.OrderLineItems;
 import com.vipunsanjana.order_service.repository.OrderRepository;
@@ -14,6 +15,7 @@ import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -31,6 +33,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
     private final Tracer tracer;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackMethod")
     @TimeLimiter(name = "inventory")
@@ -75,6 +78,7 @@ public class OrderService {
 
                 if (allInStock) {
                     orderRepository.save(order);
+                    kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
                     log.info("Order {} saved successfully", order.getOrderNumber());
                     return "Order placed successfully! Order Number: " + order.getOrderNumber();
                 } else {

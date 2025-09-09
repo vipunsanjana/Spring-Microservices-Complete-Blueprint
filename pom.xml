@@ -20,6 +20,7 @@
         <module>inventory-service</module>
         <module>discovery-service</module>
         <module>api-gateway</module>
+        <module>notification-service</module>
 
     </modules>
 
